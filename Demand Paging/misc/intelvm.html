@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Intel Virtual Memory</title>
+</head>
+
+<body bgcolor="#ffffff">
+<h1>Intel Virtual Memory</h1>
+<p>
+<em>Note:  there is a figure that goes along with this web page; if
+you have popups disabled, it didn't appear. <a
+href="intelvmfig.html">Here's a link to it.</a></em>
+</p>
+
+<p>
+In order to give an example of a practical, widely-used, and very nice
+multilevel paged virtual memory scheme, let's look at how Intel does it.
+</p>
+<p>
+We'll discuss the following items:
+<ol>
+  <li><a href="#breakdown">Address Breakdown:  how the address is divided for virtual
+	  memory lookups</a>
+  </li>
+  <li><a href="#algorithm">Translation Algorithm:  how a virtual address is translated into
+	  a physical address.</a>
+  </li>
+  <li><a href="#format">Format of Directory and Page Table Entries</a>
+  </li>
+  <li><a href="#examples">Examples:  one example of how the algorithm operates that I
+	  worked, and a second address for you to translate.</a>
+  </li>
+</ol>
+</p>
+<script language="javascript">
+<!--
+window.open('intelvmfig.html');
+-->
+</script>
+<noscript>
+You don't appear to have Javascript enabled; if you did, a popup
+window containing a figure illustrating the address translation scheme
+would have appeared.  <a href="intelvmfig.html">Here's a link</a> to
+the figure.
+</noscript>
+<a name="breakdown"><h2>Address Breakdown</h2>
+<p>
+A 32 bit virtual address is divided into a ten bit page table number,
+a ten bit page number, and a twelve bit offset into a page:
+</p>
+<p>
+<table border=0>
+  <tr>
+	<table border=1 width=96%>
+	  <tr>
+		<td align=center width=30%>Page<br>Table<br>Number</td>
+		<td align=center width=30%>Page<br>Number</td>
+		<td align=center width=36%>Offset</td>
+	  </tr>
+</table>
+  </tr>
+  <tr>
+	<table border=0 width=96%>
+	  <tr>
+		<td align=center width=30%>31-22</td>
+		<td align=center width=30%>21-12</td>
+		<td align=center width=36%>11-0</td>
+	  </tr>
+</table>
+</tr>
+</table>
+</p>
+</a>
+<a name="algorithm"><h2>Translation Algorithm</h2>
+<p>
+The "short form" of the translation algorithm is:
+</p>
+<ol>
+  <li><p>
+	  Use the page table number to index a directory, getting the
+	  address (in physical memory) of a page table.  Notice that a
+	  process may have 1024 page tables.
+	  </p>
+	  
+  </li>
+  <li><p>
+	  Use the page number to index the page table, getting the address
+	  in physical memory of the page containing the data.  Each page
+	  table also has 1024 entries.
+	  </p>
+	  
+  </li>
+  </li>
+  <li><p>
+	  Use the offset to index the page, getting the actual data.
+	  </p>
+
+  </li>
+</ol>
+<p>
+In the "long form" of the algorithm, the numbers following correspond
+to the numbers in the figure in the popup:
+<ol>
+  <li>The incoming virtual address is divided into a page table
+	  number, a page number, and an offset.
+  </li>
+  <li>The process desriptor base register (<code>PDBR</code>) in
+	  the CPU tells where the directory starts.
+  </li>
+  <li>The page table number is multiplied by four to use as an
+	  offset into the directory, and the directory entry is looked up.
+  </li>
+  <li>The directory entry contains the address of the page table,
+	  and validity and protection information.  If this
+	  information says that either the page table
+	  isn't present in memory or the protections aren't OK, the
+	  translation stops and an exception is raised.
+  </li>
+  <li>The page number is multiplied by four to use as an offset
+	  into the page table, and the page table entry is looked up.
+  </li>
+  <li>The page table entry contains the address of the page, and
+	  validity and protection information.  If this information
+	  says that either the page isn't present in memory or the
+	  protections aren't OK, the translation stops and an
+	  exception is raised.
+  </li>
+  <li>
+	  The offset is used as an index into the page.
+  </li>
+  <li>The data is at the address finally arrived at.
+  </li>
+</ol>
+</p>
+</a>
+<a name="format"><h2>Directory and Page Table Entry Format</h2>
+<p>
+Directory entries and page table entries share a common format:
+</p>
+<p>
+<table border=0>
+  <tr>
+	<table border=1 width=96%>
+	  <tr>
+		<td align=center width=60%>PFA</td>
+		<td align=center width=9%>Avail</td>
+		<td align=center width=3%>0</td>
+		<td align=center width=3%>L</td>
+		<td align=center width=3%>D</td>
+		<td align=center width=3%>A</td>
+		<td align=center width=3%>P<br>C<br>D</td>
+		<td align=center width=3%>P<br>W<br>T</td>
+		<td align=center width=3%>U</td>
+		<td align=center width=3%>W</td>
+		<td align=center width=3%>P</td>
+	  </tr>
+    </table>
+  </tr>
+  <tr>
+	<table border=0 width=96%>
+	  <tr>
+		<td align=center width=60%>31-12</td>
+		<td align=center width=9%>11-9</td>
+		<td align=center width=3%>8</td>
+		<td align=center width=3%>7</td>
+		<td align=center width=3%>6</td>
+		<td align=center width=3%>5</td>
+		<td align=center width=3%>4</td>
+		<td align=center width=3%>3</td>
+		<td align=center width=3%>2</td>
+		<td align=center width=3%>1</td>
+		<td align=center width=3%>0</td>
+	  </tr>
+    </table>
+  </tr>
+</table>
+</p>
+<table>
+  <tr>
+	<th>Bits</th>
+	<th>Name</th>
+	<th>Interpretation</th>
+  </tr>
+  <tr>
+	<td align=right>31-12</td>
+	<td align=center>PFA</td>
+	<td>page frame address</td>
+  </tr>
+  <tr>
+	<td align=right>11-9</td>
+	<td align=center>Avail</td>
+	<td>available to OS</td>
+  </tr>
+  <tr>
+	<td align=right>8</td>
+	<td align=center>0</td>
+	<td>must be 0</td>
+  </tr>
+  <tr>
+	<td align=right>7</td>
+	<td align=center>L</td>
+	<td>PTE -- Must be 0.  Dir Entry -- 4MB page</td>
+  </tr>
+  <tr>
+	<td align=right>6</td>
+	<td align=center>D</td>
+	<td>dirty (PTE only -- documented as undefined in directory entry)</td>
+  </tr>
+  <tr>
+	<td align=right>5</td>
+	<td align=center>A</td>
+	<td>accessed</td>
+  </tr>
+  <tr>
+	<td align=right>4</td>
+	<td align=center>PCD</td>
+	<td>page cache disable (can't cache data on this page)</td>
+  </tr>
+  <tr>
+	<td align=right>3</td>
+	<td align=center>PWT</td>
+	<td>page write transparent (tell external cache to use write-through
+		strategy for this page)
+	</td>
+  </tr>
+  <tr>
+	<td align=right>2</td>
+	<td align=center>U</td>
+	<td>user accessible</td>
+  </tr>
+  <tr>
+	<td align=right>1</td>
+	<td align=center>W</td>
+	<td>writeable</td>
+  </tr>
+  <tr>
+	<td align=right>0</td>
+	<td align=center>P</td>
+	<td>present</td>
+  </tr>
+</table>
+<p>
+Note:  "present" is actually checked first.  If it's not present,
+the entire remainder of the PTE (or directory entry) is available.
+</p>
+</a>
+<a name="examples"><h2>Intel VM Translation Examples</h2>
+<p>
+Assume the following partial contents of memory for both examples.
+PDBR contains 001b3000.
+</p>
+<table>
+  <tr>
+	<th>Address</th>
+	<th>Contents</th>
+  </tr>
+  <tr>
+	<td><code>0x0001a038</code></td>
+	<td><code>0x000b4045</code></td>
+  </tr>
+  <tr>
+	<td><code>0x000b4b9c</code></td>
+	<td><code>0x236b12c1</code></td>
+  </tr>
+  <tr>
+	<td><code>0x000b91a0</code></td>
+	<td><code>0x1b9d8fc5</code></td>
+  </tr>
+  <tr>
+	<td><code>0x001b31cc</code></td>
+	<td><code>0x003a9067</code></td>
+  </tr>
+  <tr>
+	<td><code>0x001b3458</code></td>
+	<td><code>0x0001a067</code></td>
+  </tr>
+  <tr>
+	<td><code>0x003a9054</code></td>
+	<td><code>0x000b9067</code></td>
+  </tr>
+</table>
+<p>
+Example 1:  VM address 1cc151a0
+<ol>
+  <li>Dividing the VM address up into two ten bit fields and a twelve
+	  bit field gives the following:
+	  <table border=0>
+		<tr><td>Page Table Number:</td><td><code>0x073</code></td></tr>
+		<tr><td>Page Number:</td><td><code>0x015</code></td></tr>
+		<tr><td>Offset:</td><td><code>0x1a0</code></td></tr>
+  </table>
+  </li>
+  <li>
+	  According to the <code>PDBR</code>, the directory starts at
+	  <code>0x001b3000</code>.
+  </li>
+  <li>
+	  We get the offset into the directory by multiplying the page
+	  table number by four (equivalently, left-shifting two places),
+	  giving <code>0x001b3000</code> +
+	  <code>0x1cc</code> = <code>0x001b31cc</code>.
+  </li>
+  <li>
+	  This address contains <code>0x003a9067</code>.  Decoding gives us:
+	  <table>
+		<tr><th>Bit(s)</th><th>Contains</th><th>Means</th></tr>
+		<tr><td>31-12</td><td><code>0x003a9</code></td><td>Page Table
+			starts at <code>0x003a9000</code></td></tr>
+			<tr><td>11-7</td><td><code>0x00</code></td><td>Nothing relevant</td></tr>
+			<tr><td>6</td><td><code>1</code></td><td>Nothing in directory</td></tr>
+			<tr><td>5</td><td><code>1</code></td><td>Page has been accessed (lately)</td></tr>
+
+			<tr><td>4-3</td><td><code>0</code></td><td>Nothing relevant</td></tr>
+			<tr><td>2</td><td><code>1</code></td><td>User accessible</td></tr>
+			<tr><td>1</td><td><code>1</code></td><td>Writeable</td></tr>
+			<tr><td>0</td><td><code>1</code></td><td>Present</td></tr>
+	  </table>
+	  </li>
+	  <li>
+		  Adding the address of the page table
+		  (<code>0x003a9000</code>) to the offset into the page table
+		  (<code>0x0015</code> * 4 = <code>0x0x054</code>) gives
+		  <code>0x003a9054</code> as the address of the page table entry.
+	  </li>
+  <li>
+	  This address contains <code>0x000b9067</code>.  Decoding gives us:
+	  <table>
+		<tr><th>Bit(s)</th><th>Contains</th><th>Means</th></tr>
+		<tr><td>31-12</td><td><code>0x000b9</code></td><td>Page
+			starts at <code>0x000b9000</code></td></tr>
+			<tr><td>11-7</td><td><code>0x00</code></td><td>Nothing relevant</td></tr>
+			<tr><td>6</td><td><code>1</code></td><td>Page is dirty</td></tr>
+			<tr><td>5</td><td><code>1</code></td><td>Page has been accessed (lately)</td></tr>
+
+			<tr><td>4-3</td><td><code>0</code></td><td>Nothing relevant</td></tr>
+			<tr><td>2</td><td><code>1</code></td><td>User accessible</td></tr>
+			<tr><td>1</td><td><code>1</code></td><td>Writeable</td></tr>
+			<tr><td>0</td><td><code>1</code></td><td>Present</td></tr>
+	  </table>
+	  </li>
+	  <li>
+		  Adding the address of the start of the page
+		  (<code>0x000b9000</code>) to the offset (<code>0x1a0</code>)
+		  tells us the data is at <code>0x000b91a0</code> in physical memory.
+	  </li>
+	  <li>
+		  The data at that address is <code>0x1b9d8fc5</code>
+	  </li>
+	</ol>
+</p>
+<p>
+Example 2:  VM address <code>0x4580eb9c</code>.  This one is your's to
+	figure out.
+</p>
+</a>
+<hr>
+<address></address>
+<!-- hhmts start -->
+Last modified: Wed Apr 13 13:11:28 MDT 2005
+<!-- hhmts end -->
+</body> </html>
