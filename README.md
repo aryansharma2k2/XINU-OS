@@ -2,13 +2,13 @@
 
 XINU is a small Unix-like operating system originally developed by Douglas Comer for instructional purposes at Purdue University. As part of lab assignments, we had to re-implement or improve some aspects of XINU. It runs on a hardware emulator like QEMU.
 
-PA1 - Basic kernel programming practice on XINU OS. Wrote functions to trace all different system calls and log results.
+PA0 - Basic kernel programming practice on XINU OS. Wrote functions to trace all different system calls and log results.
 
-PA2 - Implemented two new scheduling policies, viz., Exponential Distribution Scheduler and Linux-like Scheduler in XINU OS to tackle starvation problem which is prevalent in traditional priority based scheduler policy in XINU.
+PA1 - Implemented two new scheduling policies, viz., Exponential Distribution Scheduler and Linux-like Scheduler in XINU OS to tackle starvation problem which is prevalent in traditional priority based scheduler policy in XINU.
 
-PA3 - Implemented a memory mapping scheme in XINU with support for demand paging, backing store management and implemented page replacement policies like Second Chance & Aging.
+PA2 - Implemented a memory mapping scheme in XINU with support for demand paging, backing store management and implemented page replacement policies like Second Chance & Aging.
 
-PA4 - Building a disk defragmenter given certain disk images.
+PA3 - Building a disk defragmenter given certain disk images.
 
 Building XINU
 
