@@ -10,16 +10,16 @@ PA4 - Building a disk defragmenter given certain disk images.
 
 Building XINU
 
-    To compile the XINU kernel, run `make` in the `compile` directory as follows:
+To compile the XINU kernel, run `make` in the `compile` directory as follows:
 
-    ```shell
-    cd compile
-    make depend
-    make
-    ```
-    This creates an OS image called `xinu.elf`.
+```shell
+cd compile
+make depend
+make
+```
+This creates an OS image called `xinu.elf`.
 
-    The `make depend` directive configures some necessary information for compiling the project with the `make` command. Typically you will only need to run `make depend` the first time you build the project or when modifying the Makefile, such as adding new files.
+The `make depend` directive configures some necessary information for compiling the project with the `make` command. Typically you will only need to run `make depend` the first time you build the project or when modifying the Makefile, such as adding new files.
 
 Running and debugging XINU
 
