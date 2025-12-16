@@ -1,0 +1,34 @@
+Answer 1:
+EXPDISTSCHED
+- Advantages:
+  * Simple to implement.
+  * Reduces starvation through probability. Higher priorities are more likely to run.
+- Disadvantages:
+  * Outcomes vary due to randomness and can be noisy.
+  * Not strictly fair since a same-priority task can get unlucky.
+  * Low latency definitely cannot be guaranteed.
+
+LINUXSCHED (2.2-like)
+- Advantages:
+  * Epochs ensure all runnable tasks get CPU before resetting (no starvation).
+  * Goodess score can track how much of the CPU it comparatively used. Unused time carries over partially.
+  * Roughly proportional CPU usage to priority within an epoch.
+- Disadvantages:
+  * More information to store per process (quantum, goodness and more).
+  * Priority changes (chprio) only apply next epoch.
+  * Requires measuring and tracking context switches and ticks.
+
+Original Xinu (priority-based round-robin)
+- Advantages:
+  * Very simple with low overhead.
+  * Round-robin within the same priority is predictable and responsive.
+- Disadvantages:
+  * Starvation for lower priorities when higher priorities stay runnable. Thus, no fairness across different priorities.
+
+
+Answer 2:
+EXPDISTSCHED:
+- This scheduler selects only from the ready queue. If the ready queue is empty, it picks the NULL process (pid 0). The NULL process is not inserted into the ready queue with others, so it is only chosen when no other process is ready.
+
+LINUXSCHED:
+- This scheduler picks the runnable process with the highest goodness score. If none has goodness > 0, a new epoch is started to refill goodness. If after that there are still no eligible runnable processes, it picks the NULL process. The NULL process keeps goodness and remaining quantum at 0, so it is not selected when any other process is eligible.
