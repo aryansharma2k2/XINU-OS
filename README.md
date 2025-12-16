@@ -1,6 +1,6 @@
 # Xinu OS
 
-XINU is a small Unix-like operating system originally developed by Douglas Comer for instructional purposes at Purdue University. As part of lab assignments, we had to re-implement or improve some aspects of XINU. It runs on a hardware emulator like QEMU.
+XINU is a small Unix-like operating system originally developed by Douglas Comer for instructional purposes at Purdue University. As part of lab assignments in CSC501 Operating Systems, we had to re-implement or improve some aspects of XINU. It runs on a hardware emulator like QEMU.
 
 Process Tracers - Basic kernel programming practice on XINU OS. Wrote functions to trace all different system calls and log results.
 
